@@ -22,7 +22,9 @@ class CatFactsClient:
 
         response = requests.get(url, params=params)
 
-        logger.info(f"Received response from {url} with status code: {response.status_code}")
+        logger.info(
+            f"Received response from {url} with status code: {response.status_code}"
+        )
         logger.debug(f"Response headers: {response.headers}")
         logger.debug(f"Response body: {response.text}")
 
@@ -41,4 +43,6 @@ class CatFactsClient:
         if max_length:
             log_msg += f" with max_length={max_length}"
         logger.info(log_msg)
-        return self._make_get_request(endpoint="/facts", params={"limit": limit, "max_length": max_length})
+        return self._make_get_request(
+            endpoint="/facts", params={"limit": limit, "max_length": max_length}
+        )
