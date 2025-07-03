@@ -64,4 +64,10 @@ These validations collectively ensure that the API operates as expected under no
 After activating the virtual environment and installing dependencies, you can run the tests from the project root directory:
 
 ```bash
-pytest
+pytest --alluredir=./allure-results
+````
+### View Report 
+
+```bash
+ allure serve ./allure-results
+```
