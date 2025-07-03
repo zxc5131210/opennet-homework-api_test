@@ -1,8 +1,8 @@
 import pytest
-import logging
+from utils.logger import setup_logger
 
 # Get logger for this test file
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
 
 
 def test_get_single_cat_fact(cat_facts_client):
