@@ -2,10 +2,7 @@ from typing import Optional
 
 import allure
 import pytest
-from utils.logger import setup_logger
-
-# Get logger for this test file
-logger = setup_logger(__name__)
+import logging
 
 
 @allure.description(
@@ -27,12 +24,12 @@ def test_get_single_cat_fact(cat_facts_client):
     assert isinstance(data["fact"], str)
     assert isinstance(data["length"], int)
 
-    assert len(data["fact"].strip()) == data["length"], (
+    assert len(data["fact"]) == data["length"], (
         f"Fact length mismatch (after stripping whitespace): Expected {data['length']}, got {len(data['fact'].strip())}."
         f" Original fact: '{data['fact']}'"
     )
 
-    logger.info("Test TC_CF_001 completed successfully.")
+    logging.info("Test TC_CF_001 completed successfully.")
 
 
 @allure.feature("Cat Facts API")
@@ -67,7 +64,7 @@ def test_get_multiple_cat_facts(
     if limit is not None and max_length is not None:
         test_id = "TC_CF_005"
 
-    logger.info(
+    logging.info(
         f"Starting test: {test_id} - Get multiple cat facts with parameters: {params_str}"
     )
 
@@ -99,7 +96,7 @@ def test_get_multiple_cat_facts(
             assert isinstance(fact_item["fact"], str)
             assert isinstance(fact_item["length"], int)
 
-            assert len(fact_item["fact"].strip()) == fact_item["length"], (
+            assert len(fact_item["fact"]) == fact_item["length"], (
                 f"Fact length mismatch (after stripping whitespace): Expected {fact_item['length']}, "
                 f"got {len(fact_item['fact'].strip())}. Original fact: '{fact_item['fact']}'"
             )
@@ -109,4 +106,4 @@ def test_get_multiple_cat_facts(
                     fact_item["length"] <= max_length
                 ), f"Fact length {fact_item['length']} exceeds max_length {max_length}. Fact: '{fact_item['fact']}'"
 
-    logger.info(f"Test {test_id} completed successfully.")
+    logging.info(f"Test {test_id} completed successfully.")
