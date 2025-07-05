@@ -32,8 +32,7 @@ def test_get_single_cat_fact(cat_facts_client):
     logging.info("Test TC_CF_001 completed successfully.")
 
 
-@allure.feature("Cat Facts API")
-@allure.story("Get multiple facts with parameters")
+@allure.title("Test Get Multiple Cat Facts with Various Parameters")
 @pytest.mark.parametrize(
     "limit, max_length, expected_data_count_min",
     [
@@ -41,16 +40,16 @@ def test_get_single_cat_fact(cat_facts_client):
         pytest.param(3, None, 3, marks=pytest.mark.case3),  # type: ignore
         pytest.param(None, 50, 1, marks=pytest.mark.case4),  # type: ignore
         pytest.param(2, 30, 2, marks=pytest.mark.case5),  # type: ignore
+        pytest.param(-1, -10, 0, marks=pytest.mark.case6),  # negative
     ],
+    ids=["default", "limit_3", "maxlen_50", "limit_2_maxlen_30", "invalid_params"],
 )
-@allure.title("Test Get Multiple Cat Facts with Various Parameters")
 def test_get_multiple_cat_facts(
     cat_facts_client,
     limit: Optional[int],
     max_length: Optional[int],
     expected_data_count_min: int,
 ):
-    # === Dynamic Description for Allure ===
     params_str = (
         f"limit={limit}, max_length={max_length}" if limit or max_length else "default"
     )
@@ -59,9 +58,13 @@ def test_get_multiple_cat_facts(
     )
 
     test_id = (
-        f"TC_CF_{3 if limit is not None else (4 if max_length is not None else 2)}"
+        "TC_CF_006"
+        if limit == -1
+        else (
+            f"TC_CF_{3 if limit is not None else (4 if max_length is not None else 2)}"
+        )
     )
-    if limit is not None and max_length is not None:
+    if limit is not None and max_length is not None and limit != -1:
         test_id = "TC_CF_005"
 
     logging.info(
@@ -69,6 +72,13 @@ def test_get_multiple_cat_facts(
     )
 
     data = cat_facts_client.get_multiple_facts(limit=limit, max_length=max_length)
+
+    if limit == -1 or max_length == -10:
+        with allure.step("Verify API returns error for invalid parameters"):
+            assert (
+                "data" not in data or not data["data"]
+            ), f"Expected error or empty data for invalid parameters, but got: {data}"
+        return
 
     with allure.step("Verify response contains 'data' as a list"):
         assert "data" in data
@@ -84,11 +94,6 @@ def test_get_multiple_cat_facts(
                 len(data["data"]) >= expected_data_count_min
             ), f"Expected at least {expected_data_count_min} fact(s), but got {len(data['data'])}. Parameters: {params_str}"
 
-        if len(data["data"]) == 0 and expected_data_count_min > 0:
-            pytest.fail(
-                f"Fact list is empty, but expected at least {expected_data_count_min} fact(s). Parameters: {params_str}"
-            )
-
     with allure.step("Check structure and validity of each fact item"):
         for fact_item in data["data"]:
             assert "fact" in fact_item
@@ -97,8 +102,8 @@ def test_get_multiple_cat_facts(
             assert isinstance(fact_item["length"], int)
 
             assert len(fact_item["fact"]) == fact_item["length"], (
-                f"Fact length mismatch (after stripping whitespace): Expected {fact_item['length']}, "
-                f"got {len(fact_item['fact'].strip())}. Original fact: '{fact_item['fact']}'"
+                f"Fact length mismatch: Expected {fact_item['length']}, "
+                f"got {len(fact_item['fact'].strip())}. Fact: '{fact_item['fact']}'"
             )
 
             if max_length is not None:
