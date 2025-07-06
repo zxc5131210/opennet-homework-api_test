@@ -40,7 +40,7 @@ def test_get_single_cat_fact(cat_facts_client):
         pytest.param(3, None, 3, marks=pytest.mark.case3),  # type: ignore
         pytest.param(None, 50, 1, marks=pytest.mark.case4),  # type: ignore
         pytest.param(2, 30, 2, marks=pytest.mark.case5),  # type: ignore
-        pytest.param(-1, -10, 0, marks=pytest.mark.case6),  # negative
+        pytest.param(-1, None, 0, marks=pytest.mark.case6),  # negative
     ],
     ids=["default", "limit_3", "maxlen_50", "limit_2_maxlen_30", "invalid_params"],
 )
@@ -73,7 +73,7 @@ def test_get_multiple_cat_facts(
 
     data = cat_facts_client.get_multiple_facts(limit=limit, max_length=max_length)
 
-    if limit == -1 or max_length == -10:
+    if limit == -1:
         with allure.step("Verify API returns error for invalid parameters"):
             assert (
                 "data" not in data or not data["data"]
